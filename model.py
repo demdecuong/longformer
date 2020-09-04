@@ -191,7 +191,7 @@ class Model(nn.Module):
                     self_attn_mask = self_attn_mask,\
                     external_memories = src,\
                     external_padding_mask = src_padding_mask,\
-                    need_weights = False)
+                    attention_mask = attention_mask)
         if self.copy:
             y_dec, attn_dist = self.word_prob(x, h, src, src_padding_mask, xids, max_ext_len)
         else:
@@ -203,17 +203,18 @@ class Model(nn.Module):
         if self.longformer:
             # batch x seq len x dmodel
             x = x.permute(1,0)
-            attention_mask = attention_mask.permute(3,1,2,0)
+            attention_mask  = attention_mask.permute(3,1,2,0)
             hs, src_padding_mask = self.encode_longformer(x, attention_mask = attention_mask)
             # hs = hs.permute(1,0,2) # seq len x batch x dmodel
             print("Encoder :", hs.shape)
             if self.copy:
-                y_pred, _ = self.decode(y_inp, mask_x, mask_y, hs, src_padding_mask, x_ext, max_ext_len)
+                y_inp = y_inp.permute(1,0)
+                y_pred, _ = self.decode_longformer(y_inp, mask_x, mask_y, hs, src_padding_mask, x_ext, max_ext_len,attention_mask = attention_mask)
                 print("Decoder :",y_pred.shape)
                 cost = self.label_smotthing_loss(y_pred, y_ext, mask_y, self.avg_nll)
                 print("Loss :", cost)
             else:
-                y_pred, _ = self.decode(y_inp, mask_x, mask_y, hs, src_padding_mask)
+                y_pred, _ = self.decode_longformer(y_inp, mask_x, mask_y, hs, src_padding_mask,attention_mask = attention_mask)
                 cost = self.nll_loss(y_pred, y_tgt, mask_y, self.avg_nll)
         else:
             # seq len x batch x dmodel

@@ -467,8 +467,12 @@ def run(existing_model_name = None,w = 64):
 
                     batch.x = pad_window_size(torch.LongTensor(batch.x),256,0)
                     batch.x_ext = pad_window_size(torch.LongTensor(batch.x_ext),256,0)
+                    batch.y = pad_window_size(torch.LongTensor(batch.y),256,0)
+                    batch.y_inp = pad_window_size(torch.LongTensor(batch.y_inp),256,0)
+                    batch.y_ext = pad_window_size(torch.LongTensor(batch.y_ext),256,0)
+
                     # exit()
-                    print(batch.x.shape,attention_mask.shape)
+                    print(batch.x.shape,attention_mask.shape,batch.y.shape,batch.y_ext.shape)
                     model.zero_grad()
                     
                     y_pred, cost = model(torch.LongTensor(batch.x).to(options["device"]),\
@@ -506,7 +510,7 @@ def run(existing_model_name = None,w = 64):
                         #     if options["fire"]:
                         #         shutil.move(cfg.cc.MODEL_PATH + file_name, "/out/")
 
-                            print("finished")
+                            # print("finished")
                         num_partial += 1
                 print ("in this epoch, total average cost =", total_error / used_batch, ",", \
                         "cost_c =", error_c / used_batch, ",",\
@@ -519,7 +523,7 @@ def run(existing_model_name = None,w = 64):
                     if not options["is_debugging"]:
                         print ("save model... ",)
                         # file_name =  model_name + ".gpu" + str(consts["idx_gpu"]) + ".epoch" + str(epoch // consts["save_epoch"] + existing_epoch) + "." + str(num_partial)
-                        file_name =  model_name + ".gpu" + str(consts["idx_gpu"]) + ".best_model
+                        file_name =  model_name + ".gpu" + str(consts["idx_gpu"]) + ".best_model"
                         save_model(cfg.cc.MODEL_PATH + file_name, model, optimizer)
                         if options["fire"]:
                             shutil.move(cfg.cc.MODEL_PATH + file_name, "/out/")

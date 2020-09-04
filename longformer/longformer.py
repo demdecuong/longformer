@@ -73,9 +73,7 @@ class LongformerSelfAttention(nn.Module):
         if attention_mask is not None:
             attention_mask = attention_mask.squeeze(dim=2).squeeze(dim=1)
             key_padding_mask = attention_mask < 0
-            print(key_padding_mask)
             extra_attention_mask = attention_mask > 0
-            print(extra_attention_mask)
             remove_from_windowed_attention_mask = attention_mask != 0
 
             num_extra_indices_per_batch = extra_attention_mask.long().sum(dim=1) # number of global attention
