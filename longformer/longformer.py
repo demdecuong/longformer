@@ -71,17 +71,12 @@ class LongformerSelfAttention(nn.Module):
         assert encoder_attention_mask is None, "`encoder_attention_mask` is not supported and shiould be None"
 
         if attention_mask is not None:
-            print('Attention mask before:',attention_mask.shape)
             attention_mask = attention_mask.squeeze(dim=2).squeeze(dim=1)
-            print('Attention mask after:',attention_mask.shape)
             key_padding_mask = attention_mask < 0
-            print('Key padding mask:',attention_mask.shape)
             print(key_padding_mask)
             extra_attention_mask = attention_mask > 0
-            print('Extra attention mask:',attention_mask.shape)
             print(extra_attention_mask)
             remove_from_windowed_attention_mask = attention_mask != 0
-            print('Remove from windowed attention mask:',attention_mask.shape)
 
             num_extra_indices_per_batch = extra_attention_mask.long().sum(dim=1) # number of global attention
             max_num_extra_indices_per_batch = num_extra_indices_per_batch.max()  
@@ -93,23 +88,19 @@ class LongformerSelfAttention(nn.Module):
                 # in a 3d tensor and pad it to `max_num_extra_indices_per_batch`
                 # 1) selecting embeddings that correspond to global attention
                 extra_attention_mask_nonzeros = extra_attention_mask.nonzero(as_tuple=True)
-                print("Extra attention mask nonzeros:",len(extra_attention_mask_nonzeros))
-                print(extra_attention_mask_nonzeros)
+               
                 zero_to_max_range = torch.arange(0, max_num_extra_indices_per_batch,
                                                  device=num_extra_indices_per_batch.device)
-                print("Zero to max range:",zero_to_max_range.shape)
-                print(zero_to_max_range)
+               
                 # mask indicating which values are actually going to be padding
                 selection_padding_mask = zero_to_max_range < num_extra_indices_per_batch.unsqueeze(dim=-1)
-                print(num_extra_indices_per_batch)
-                print(selection_padding_mask)
-
+                
                 # 2) location of the non-padding values in the selected global attention
                 selection_padding_mask_nonzeros = selection_padding_mask.nonzero(as_tuple=True)
-                print(selection_padding_mask_nonzeros)
+    
                 # 3) location of the padding values in the selected global attention
                 selection_padding_mask_zeros = (selection_padding_mask == 0).nonzero(as_tuple=True)
-                print(selection_padding_mask_zeros)
+           
         else:
             remove_from_windowed_attention_mask = None
             extra_attention_mask = None

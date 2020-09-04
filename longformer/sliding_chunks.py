@@ -46,21 +46,17 @@ def sliding_chunks_matmul_qk(q: torch.Tensor, k: torch.Tensor, w: int, padding_v
     assert q.size() == k.size()
 
     chunks_count = seqlen // w - 1
-    print(chunks_count)
     # group bsz and num_heads dimensions into one, then chunk seqlen into chunks of size w * 2
     q = q.transpose(1, 2).reshape(bsz * num_heads, seqlen, head_dim)
     k = k.transpose(1, 2).reshape(bsz * num_heads, seqlen, head_dim)
-    print(q.shape,k.shape)
 
     chunk_q = _chunk(q, w)
-    chunk_k = _chunk(k, w)
-    print(chunk_k.shape,chunk_q.shape)
+    chunk_k = _chunk(k, w)  
     # matrix multipication
     # bcxd: bsz*num_heads x chunks x 2w x head_dim
     # bcyd: bsz*num_heads x chunks x 2w x head_dim
     # bcxy: bsz*num_heads x chunks x 2w x 2w
     chunk_attn = torch.einsum('bcxd,bcyd->bcxy', (chunk_q, chunk_k))  # multiply
-    print(chunk_attn.shape)
 
     # convert diagonals into columns
     diagonal_chunk_attn = _skew(chunk_attn, direction=(0, 0, 0, 1), padding_value=padding_value)
@@ -70,8 +66,7 @@ def sliding_chunks_matmul_qk(q: torch.Tensor, k: torch.Tensor, w: int, padding_v
     # followed by w columns for the upper triangle.
 
     diagonal_attn = diagonal_chunk_attn.new_empty((bsz * num_heads, chunks_count + 1, w, w * 2 + 1)) # empty for real :) all values are 0
-    print('diag chunk attention:',diagonal_chunk_attn.shape)
-    print('diag attention:',diagonal_attn.shape)
+
     # copy parts from diagonal_chunk_attn into the compined matrix of attentions
     # - copying the main diagonal and the upper triangle
     diagonal_attn[:, :-1, :, w:] = diagonal_chunk_attn[:, :, :w, :w + 1]
@@ -80,11 +75,8 @@ def sliding_chunks_matmul_qk(q: torch.Tensor, k: torch.Tensor, w: int, padding_v
     diagonal_attn[:, 1:, :, :w] = diagonal_chunk_attn[:, :, - (w + 1):-1, w + 1:]
     diagonal_attn[:, 0, 1:w, 1:w] = diagonal_chunk_attn[:, 0, :w - 1, 1 - w:]
 
-    print(diagonal_chunk_attn[:,:,:w,:w+1].shape)
-
     # separate bsz and num_heads dimensions again
     diagonal_attn = diagonal_attn.view(bsz, num_heads, seqlen, 2 * w + 1).transpose(2, 1)
-    print(diagonal_attn.shape)
 
     mask_invalid_locations(diagonal_attn, w, 1, False)
 
@@ -94,6 +86,7 @@ def sliding_chunks_matmul_qk(q: torch.Tensor, k: torch.Tensor, w: int, padding_v
 def sliding_chunks_matmul_pv(prob: torch.Tensor, v: torch.Tensor, w: int):
     '''Same as sliding_chunks_matmul_qk but for prob and value tensors. It is expecting the same output
     format from sliding_chunks_matmul_qk'''
+    print(v.shape,w)
     bsz, seqlen, num_heads, head_dim = v.size()
     assert seqlen % (w * 2) == 0
     assert prob.size()[:3] == v.size()[:3]

@@ -497,12 +497,14 @@ def run(existing_model_name = None,w = 64):
                                 "cost_c =", error_c / used_batch, ",", \
                                 "time:", time.time() - partial_start)
                         partial_num_files = 0
-                        if not options["is_debugging"]:
-                            print("save model... ",)
-                            file_name =  model_name + ".gpu" + str(consts["idx_gpu"]) + ".epoch" + str(epoch // consts["save_epoch"] + existing_epoch) + "." + str(num_partial)
-                            save_model(cfg.cc.MODEL_PATH + file_name, model, optimizer)
-                            if options["fire"]:
-                                shutil.move(cfg.cc.MODEL_PATH + file_name, "/out/")
+                        # if not options["is_debugging"]:
+                        #     print("save model... ",)
+                        #     # file_name =  model_name + ".gpu" + str(consts["idx_gpu"]) + ".epoch" + str(epoch // consts["save_epoch"] + existing_epoch) + "." + str(num_partial)
+                        #     file_name =  model_name + ".gpu" + str(consts["idx_gpu"]) + ".epoch" + str(epoch // consts["save_epoch"] + existing_epoch) + "." + str(num_partial)
+                            
+                        #     save_model(cfg.cc.MODEL_PATH + file_name, model, optimizer)
+                        #     if options["fire"]:
+                        #         shutil.move(cfg.cc.MODEL_PATH + file_name, "/out/")
 
                             print("finished")
                         num_partial += 1
@@ -516,7 +518,8 @@ def run(existing_model_name = None,w = 64):
                     last_total_error = total_error
                     if not options["is_debugging"]:
                         print ("save model... ",)
-                        file_name =  model_name + ".gpu" + str(consts["idx_gpu"]) + ".epoch" + str(epoch // consts["save_epoch"] + existing_epoch) + "." + str(num_partial)
+                        # file_name =  model_name + ".gpu" + str(consts["idx_gpu"]) + ".epoch" + str(epoch // consts["save_epoch"] + existing_epoch) + "." + str(num_partial)
+                        file_name =  model_name + ".gpu" + str(consts["idx_gpu"]) + ".best_model
                         save_model(cfg.cc.MODEL_PATH + file_name, model, optimizer)
                         if options["fire"]:
                             shutil.move(cfg.cc.MODEL_PATH + file_name, "/out/")
