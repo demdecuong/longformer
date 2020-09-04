@@ -241,7 +241,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     data_type = "cnndm"
-    raw_path = "../data/cnndm-pj/"
+    raw_path = "'drive/My Drive/LAB/data/cnndm-pj/"
 
     print (data_type, raw_path)
     run(data_type, raw_path)
