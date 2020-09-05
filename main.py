@@ -463,7 +463,7 @@ def run(existing_model_name = None,w = 64):
                     # Set global attention based on the task.
                     attention_mask[:, :w] = 2
                     attention_mask[:, attention_mask.size(1) - w : ] = 2
-                    # attention_mask = pad_window_size(attention_mask,256,0)
+                    attention_mask = pad_window_size(attention_mask,256,0)
 
                     batch.x = pad_window_size(torch.LongTensor(batch.x),256,0)
                     batch.x_ext = pad_window_size(torch.LongTensor(batch.x_ext),256,0)
