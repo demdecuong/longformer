@@ -472,7 +472,7 @@ def run(existing_model_name = None,w = 64):
                     # batch.y_ext = pad_window_size(torch.LongTensor(batch.y_ext),256,0)
 
                     # exit()
-                    print(batch.x.shape,attention_mask.shape,batch.y.shape,batch.y_ext.shape)
+                    # print(batch.x.shape,attention_mask.shape,batch.y.shape,batch.y_ext.shape)
                     model.zero_grad()
                     
                     y_pred, cost = model(torch.LongTensor(batch.x).to(options["device"]),\

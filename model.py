@@ -206,12 +206,13 @@ class Model(nn.Module):
             attention_mask  = attention_mask.permute(3,1,2,0)
             hs, src_padding_mask = self.encode_longformer(x, attention_mask = attention_mask)
             hs = hs.permute(1,0,2) # seq len x batch x dmodel
+            src_padding_mask = src_padding_mask.permute(1,0)
             if self.copy:
-                y_inp = y_inp.permute(1,0)
-                y_pred, _ = self.decode_longformer(y_inp, mask_x, mask_y, hs, src_padding_mask, x_ext, max_ext_len,attention_mask = attention_mask)
+                # y_inp = y_inp.permute(1,0)
+                y_pred, _ = self.decode(y_inp, mask_x, mask_y, hs, src_padding_mask, x_ext, max_ext_len)
                 cost = self.label_smotthing_loss(y_pred, y_ext, mask_y, self.avg_nll)
             else:
-                y_pred, _ = self.decode_longformer(y_inp, mask_x, mask_y, hs, src_padding_mask,attention_mask = attention_mask)
+                y_pred, _ = self.decode(y_inp, mask_x, mask_y, hs, src_padding_mask)
                 cost = self.nll_loss(y_pred, y_tgt, mask_y, self.avg_nll)
         else:
             # seq len x batch x dmodel
