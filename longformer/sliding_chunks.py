@@ -86,7 +86,6 @@ def sliding_chunks_matmul_qk(q: torch.Tensor, k: torch.Tensor, w: int, padding_v
 def sliding_chunks_matmul_pv(prob: torch.Tensor, v: torch.Tensor, w: int):
     '''Same as sliding_chunks_matmul_qk but for prob and value tensors. It is expecting the same output
     format from sliding_chunks_matmul_qk'''
-    print(v.shape,w)
     bsz, seqlen, num_heads, head_dim = v.size()
     assert seqlen % (w * 2) == 0
     assert prob.size()[:3] == v.size()[:3]

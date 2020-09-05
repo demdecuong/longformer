@@ -401,7 +401,7 @@ def run(existing_model_name = None,w = 64):
         training_model = False
         predict_model = True
     else:
-        need_load_model = False
+        need_load_model = True
         training_model = True
         predict_model = False
 
@@ -467,9 +467,9 @@ def run(existing_model_name = None,w = 64):
 
                     batch.x = pad_window_size(torch.LongTensor(batch.x),256,0)
                     batch.x_ext = pad_window_size(torch.LongTensor(batch.x_ext),256,0)
-                    batch.y = pad_window_size(torch.LongTensor(batch.y),256,0)
-                    batch.y_inp = pad_window_size(torch.LongTensor(batch.y_inp),256,0)
-                    batch.y_ext = pad_window_size(torch.LongTensor(batch.y_ext),256,0)
+                    # batch.y = pad_window_size(torch.LongTensor(batch.y),256,0)
+                    # batch.y_inp = pad_window_size(torch.LongTensor(batch.y_inp),256,0)
+                    # batch.y_ext = pad_window_size(torch.LongTensor(batch.y_ext),256,0)
 
                     # exit()
                     print(batch.x.shape,attention_mask.shape,batch.y.shape,batch.y_ext.shape)

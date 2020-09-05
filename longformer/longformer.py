@@ -121,7 +121,6 @@ class LongformerSelfAttention(nn.Module):
             attn_weights = diagonaled_mm_tvm(q, k, self.attention_window, self.attention_dilation, False, 0, False)
         else:  # "sliding_chunks"
             attn_weights = sliding_chunks_matmul_qk(q, k, self.attention_window, padding_value=0) # return diagonal_attn
-            print("Final self attnetion:",attn_weights.shape)
             
         mask_invalid_locations(attn_weights, self.attention_window, self.attention_dilation, False)
         if remove_from_windowed_attention_mask is not None:

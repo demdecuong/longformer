@@ -37,13 +37,11 @@ class LongformerLayer(nn.Module):
         # x: seq_len x bsz x embed_dim
         residual = x
         attn_out = self.self_attn(x, attention_mask= attention_mask, output_attentions= True)
-        print(len(attn_out))
         x, self_attn = attn_out[0] ,attn_out[1]
         # if kv is None:
         #     x, self_attn = self.self_attn(x, attention_mask= attention_mask)
         # else:
         #     x, self_attn = self.self_attn(query=x, key=kv, value=kv, attention_mask=attention_mask)
-        print("Longformer attn",x.shape)
         x = F.dropout(x, p=self.dropout, training=self.training)
         x = self.attn_layer_norm(residual + x)
 
