@@ -57,7 +57,7 @@ def init_modules():
     options = {}
 
     options["is_debugging"] = False
-    options["is_predicting"] = False
+    options["is_predicting"] = True
     options["model_selection"] = False # When options["is_predicting"] = True, true means use validation set for tuning, false is real testing.
 
     options["cuda"] = cfg.CUDA and torch.cuda.is_available()
@@ -189,7 +189,7 @@ def beam_decode(fname, batch, model, modules, consts, options):
             cand_scores = cand_y_scores.flatten()
         idx_top_joint_scores = torch.topk(cand_scores, beam_size - num_dead)[1]
 
-        idx_last_traces = idx_top_joint_scores / dict_size
+        idx_last_traces = idx_top_joint_scores // dict_size
         idx_word_now = idx_top_joint_scores % dict_size
         top_joint_scores = cand_y_scores.flatten()[idx_top_joint_scores]
 
@@ -331,7 +331,7 @@ def beam_decode(fname, batch, model, modules, consts, options):
 
 
 
-def predict(model, modules, consts, options):
+def predict(model, modules, consts, options,w = 64):
     print("start predicting,")
     model.eval()
     options["has_y"] = TESTING_DATASET_CLS.HAS_Y
@@ -365,8 +365,23 @@ def predict(model, modules, consts, options):
         assert len(test_idx) == batch.x.shape[1] # local_batch_size
 
                     
-        word_emb, padding_mask = model.encode(torch.LongTensor(batch.x).to(options["device"]))
+        # word_emb, padding_mask = model.encode(torch.LongTensor(batch.x).to(options["device"]))
+        attention_mask = torch.ones(batch.x.shape, dtype=torch.long , device= options["device"])
+        # Set global attention based on the task.
+        attention_mask[:, :w] = 2
+        attention_mask[:, attention_mask.size(1) - w : ] = 2
+        attention_mask = pad_window_size(attention_mask,256,0)
+        attention_mask = attention_mask.unsqueeze(1).unsqueeze(1)
 
+        batch.x = pad_window_size(torch.LongTensor(batch.x),256,0)
+        batch.x = batch.x.permute(1,0)
+        attention_mask  = attention_mask.permute(3,1,2,0)
+
+        word_emb, padding_mask = model.encode_longformer(torch.LongTensor(batch.x).to(options["device"]),
+        attention_mask)
+
+        word_emb = word_emb.permute(1,0,2) # seq len x batch x dmodel
+        padding_mask = padding_mask.permute(1,0)
         if options["beam_decoding"]:
             for idx_s in range(len(test_idx)):
                 if options["copy"]:
